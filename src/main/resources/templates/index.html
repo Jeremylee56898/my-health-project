@@ -2,15 +2,27 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>我的健康日誌</title>
+    <title>我的健康日記</title>
     <style>
+        /* --- 這些是原本的樣式 --- */
         body { font-family: sans-serif; padding: 20px; background-color: #f4f4f9; }
         .container { display: flex; gap: 20px; }
         .form-box, .chart-box { background: white; padding: 20px; border-radius: 8px; }
         .form-box { width: 300px; }
         .chart-box { flex-grow: 1; }
         input { display: block; width: 100%; margin-bottom: 10px; padding: 8px; }
-        button { width: 100%; padding: 10px; background-color: #4f46e5; color: white; border: none; }
+        
+        /* --- 這些是新加的表格與按鈕樣式 --- */
+        table { border-collapse: collapse; width: 100%; background-color: white; border-radius: 10px; overflow: hidden; margin-top: 20px; }
+        th { background-color: #4f46e5; color: white; padding: 12px; text-align: left; }
+        td { padding: 10px; border-bottom: 1px solid #ddd; }
+        tr:nth-child(even) { background-color: #eef2ff; } 
+        tr:hover { background-color: #dbeafe; } 
+        
+        /* --- 修正按鈕樣式 --- */
+        .form-box button { width: 100%; padding: 10px; background-color: #4f46e5; color: white; border: none; }
+        table button { background-color: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
+        table button:hover { background-color: #dc2626; }
     </style>
 </head>
 <body>
@@ -74,20 +86,37 @@
                 } catch (e) { console.error("圖表繪製失敗:", e); }
 
                 // 2. 獨立處理表格
-                try {
-                    const tableBody = document.getElementById('logTableBody');
-                    tableBody.innerHTML = ''; 
-                    data.forEach(item => {
-                        tableBody.innerHTML += `<tr>
-                            <td>${item.RECORD_DATE || item.record_date}</td>
-<td>${item.SLEEP_HOURS || item.sleep_hours}</td>
-<td>${item.STEPS || item.steps || 0}</td>
-<td>${item.MOOD_SCORE || item.mood_score || 0}</td>
-                        </tr>`;
-                    });
-                } catch (e) { console.error("表格生成失敗:", e); }
-            });
+try {
+    const tableBody = document.getElementById('logTableBody');
+    tableBody.innerHTML = ''; 
+    data.forEach(item => {
+        // 先計算風險
+        let sleep = item.SLEEP_HOURS || item.sleep_hours || 0;
+        let steps = item.STEPS || item.steps || 0;
+        let risk = (sleep < 6 || steps < 2000) ? "高風險" : "低風險";
+        let color = (risk === "高風險") ? "red" : "green";
+
+        // 這裡確保所有的 <td> 都在反引號內
+        tableBody.innerHTML += `<tr>
+            <td>${item.RECORD_DATE || item.record_date}</td>
+            <td>${sleep}</td>
+            <td>${steps}</td>
+            <td>${item.MOOD_SCORE || item.mood_score || 0}</td>
+            <td><span style="color: ${color}">${risk}</span></td>
+            <td><button onclick="deleteRecord(${item.ID || item.id})">刪除</button></td>
+        </tr>`;
     });
+} catch (e) { console.error("表格生成失敗:", e); }
+    }); // 這裡是 fetch 的結尾
+}); // 這裡是 DOMContentLoaded 的結尾
+
+// 請務必補上這一塊！
+function deleteRecord(id) {
+    if (confirm("確定要刪除這筆紀錄嗎？")) {
+        fetch('/delete?id=' + id, { method: 'POST' })
+            .then(() => location.reload());
+    }
+}
 </script>
 </body>
 </html>

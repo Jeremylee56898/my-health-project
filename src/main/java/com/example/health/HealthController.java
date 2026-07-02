@@ -10,7 +10,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 public class HealthController {
@@ -39,10 +38,11 @@ public class HealthController {
         return "redirect:/";
     }
 
-    @GetMapping("/api/data")
-@ResponseBody
-public List<Map<String, Object>> getChartData() {
-    // 確保這裡 SELECT 的欄位名稱跟資料庫完全一致，且包含所有欄位
-    return jdbcTemplate.queryForList("SELECT RECORD_DATE, SLEEP_HOURS, STEPS, MOOD_SCORE FROM health_logs ORDER BY RECORD_DATE ASC");
+   // 在 HealthController.java 中新增這段
+@PostMapping("/delete")
+public String deleteLog(@RequestParam int id) {
+    String sql = "DELETE FROM health_logs WHERE id = ?";
+    jdbcTemplate.update(sql, id);
+    return "redirect:/"; // 刪除後自動跳轉回首頁
 }
 }
