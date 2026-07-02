@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>我的健康日誌</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background-color: #f4f4f9; }
+        .container { display: flex; gap: 20px; }
+        .form-box, .chart-box { background: white; padding: 20px; border-radius: 8px; }
+        .form-box { width: 300px; }
+        .chart-box { flex-grow: 1; }
+        input { display: block; width: 100%; margin-bottom: 10px; padding: 8px; }
+        button { width: 100%; padding: 10px; background-color: #4f46e5; color: white; border: none; }
+    </style>
+</head>
+<body>
+
+    <h1>智慧健康日誌與風險評估</h1>
+
+    <div class="container">
+        <div class="form-box">
+            <h3>新增今日數據</h3>
+            <form action="/add" method="post">
+                <input type="date" name="date" required>
+                <input type="number" name="sleep" placeholder="睡眠時數 (小時)" required>
+                <input type="number" name="steps" placeholder="累積步數" required>
+                <input type="number" name="mood" placeholder="心情分數 (1-10)" required>
+                <button type="submit">送出並分析風險</button>
+            </form>
+        </div>
+
+        <div class="chart-box">
+            <h3>睡眠與步數統計</h3>
+            <canvas id="myChart" width="400" height="200"></canvas>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // 自動從後端撈取資料
+    fetch('/api/data')
+        .then(response => response.json())
+        .then(data => {
+            // 從 JSON 資料提取日期和睡眠時數
+            // 注意看，最後面的屬性名稱變成大寫了喔！
+const labels = data.map(item => item.RECORD_DATE);
+const sleepValues = data.map(item => item.SLEEP_HOURS);
+
+            // 初始化圖表
+            const ctx = document.getElementById('myChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line', // 折線圖
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '每日睡眠時數',
+                        data: sleepValues,
+                        borderColor: '#4f46e5',
+                        backgroundColor: 'rgba(79, 70, 229, 0.2)',
+                        fill: true
+                    }]
+                }
+            });
+        })
+        .catch(error => console.error('抓取資料失敗:', error));
+</script>
+</body>
+</html>

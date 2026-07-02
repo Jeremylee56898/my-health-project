@@ -1,6 +1,8 @@
-CREATE TABLE IF NOT EXISTS health_logs (
+DROP TABLE IF EXISTS health_logs;
+CREATE TABLE health_logs (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    heart_rate INT,
+    record_date DATE,
+    sleep_hours INT,
     steps INT,
-    record_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    mood_score INT
 );
