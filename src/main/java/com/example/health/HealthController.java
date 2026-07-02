@@ -40,8 +40,9 @@ public class HealthController {
     }
 
     @GetMapping("/api/data")
-    @ResponseBody
-    public List<Map<String, Object>> getChartData() {
-    return jdbcTemplate.queryForList("SELECT record_date, sleep_hours FROM health_logs ORDER BY record_date ASC");
+@ResponseBody
+public List<Map<String, Object>> getChartData() {
+    // 關鍵：將 SELECT 後面的欄位名稱改為全大寫，這樣前端對接才不會抓不到資料
+    return jdbcTemplate.queryForList("SELECT RECORD_DATE, SLEEP_HOURS FROM health_logs ORDER BY RECORD_DATE ASC");
 }
 }
