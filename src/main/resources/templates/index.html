@@ -37,32 +37,31 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // 自動從後端撈取資料
-    fetch('/api/data')
-        .then(response => response.json())
-        .then(data => {
-            // 從 JSON 資料提取日期和睡眠時數
-            // 注意看，最後面的屬性名稱變成大寫了喔！
-const labels = data.map(item => item.RECORD_DATE);
-const sleepValues = data.map(item => item.SLEEP_HOURS);
+    // 使用 DOMContentLoaded 確保 HTML 全部讀完才執行
+    document.addEventListener("DOMContentLoaded", function() {
+        fetch('/api/data')
+            .then(response => response.json())
+            .then(data => {
+                const labels = data.map(item => item.RECORD_DATE);
+                const sleepValues = data.map(item => item.SLEEP_HOURS);
 
-            // 初始化圖表
-            const ctx = document.getElementById('myChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'line', // 折線圖
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: '每日睡眠時數',
-                        data: sleepValues,
-                        borderColor: '#4f46e5',
-                        backgroundColor: 'rgba(79, 70, 229, 0.2)',
-                        fill: true
-                    }]
-                }
-            });
-        })
-        .catch(error => console.error('抓取資料失敗:', error));
+                const ctx = document.getElementById('myChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: '每日睡眠時數',
+                            data: sleepValues,
+                            borderColor: '#4f46e5',
+                            backgroundColor: 'rgba(79, 70, 229, 0.2)',
+                            fill: true
+                        }]
+                    }
+                });
+            })
+            .catch(error => console.error('抓取資料失敗:', error));
+    });
 </script>
 </body>
 </html>
