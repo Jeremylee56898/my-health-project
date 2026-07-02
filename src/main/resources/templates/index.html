@@ -30,6 +30,21 @@
         </div>
 
         <div class="chart-box">
+            <div class="table-box" style="margin-top: 20px;">
+    <h3>健康紀錄列表</h3>
+    <table border="1" width="100%">
+        <thead>
+            <tr>
+                <th>日期</th>
+                <th>睡眠時數</th>
+                <th>步數</th>
+                <th>心情分數</th>
+            </tr>
+        </thead>
+        <tbody id="logTableBody">
+            </tbody>
+    </table>
+</div>
             <h3>睡眠與步數統計</h3>
             <canvas id="myChart" width="400" height="200"></canvas>
         </div>
@@ -37,30 +52,41 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // 使用 DOMContentLoaded 確保 HTML 全部讀完才執行
     document.addEventListener("DOMContentLoaded", function() {
         fetch('/api/data')
             .then(response => response.json())
             .then(data => {
-                const labels = data.map(item => item.RECORD_DATE);
-                const sleepValues = data.map(item => item.SLEEP_HOURS);
+                // 1. 獨立處理圖表
+                try {
+                    const ctx = document.getElementById('myChart').getContext('2d');
+                    new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: data.map(item => item.RECORD_DATE || item.record_date),
+                            datasets: [{
+                                label: '每日睡眠時數',
+                                data: data.map(item => item.SLEEP_HOURS || item.sleep_hours),
+                                borderColor: '#4f46e5',
+                                fill: true
+                            }]
+                        }
+                    });
+                } catch (e) { console.error("圖表繪製失敗:", e); }
 
-                const ctx = document.getElementById('myChart').getContext('2d');
-                new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: '每日睡眠時數',
-                            data: sleepValues,
-                            borderColor: '#4f46e5',
-                            backgroundColor: 'rgba(79, 70, 229, 0.2)',
-                            fill: true
-                        }]
-                    }
-                });
-            })
-            .catch(error => console.error('抓取資料失敗:', error));
+                // 2. 獨立處理表格
+                try {
+                    const tableBody = document.getElementById('logTableBody');
+                    tableBody.innerHTML = ''; 
+                    data.forEach(item => {
+                        tableBody.innerHTML += `<tr>
+                            <td>${item.RECORD_DATE || item.record_date}</td>
+<td>${item.SLEEP_HOURS || item.sleep_hours}</td>
+<td>${item.STEPS || item.steps || 0}</td>
+<td>${item.MOOD_SCORE || item.mood_score || 0}</td>
+                        </tr>`;
+                    });
+                } catch (e) { console.error("表格生成失敗:", e); }
+            });
     });
 </script>
 </body>

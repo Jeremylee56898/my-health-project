@@ -42,7 +42,7 @@ public class HealthController {
     @GetMapping("/api/data")
 @ResponseBody
 public List<Map<String, Object>> getChartData() {
-    // 關鍵：將 SELECT 後面的欄位名稱改為全大寫，這樣前端對接才不會抓不到資料
-    return jdbcTemplate.queryForList("SELECT RECORD_DATE, SLEEP_HOURS FROM health_logs ORDER BY RECORD_DATE ASC");
+    // 確保這裡 SELECT 的欄位名稱跟資料庫完全一致，且包含所有欄位
+    return jdbcTemplate.queryForList("SELECT RECORD_DATE, SLEEP_HOURS, STEPS, MOOD_SCORE FROM health_logs ORDER BY RECORD_DATE ASC");
 }
 }
