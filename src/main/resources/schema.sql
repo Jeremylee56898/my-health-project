@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS health_logs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    heart_rate INT,
+    steps INT,
+    record_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
